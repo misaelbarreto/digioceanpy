@@ -1,0 +1,17 @@
+*˜
+*.pyc
+.svn
+.DS_Store
+.DS_Store?
+._*
+.idea/*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.project
+.pydevproject
+.settings/*
+#sqlite.db
+#media/*
+#mail/*
