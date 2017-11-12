@@ -124,7 +124,9 @@ class DigitalOceanCommand:
         if self.http_method == 'GET':
             response = requests.get(url, headers=request_headers, params=self.params)
         elif self.http_method == 'POST':
-            response = requests.post(url, headers=request_headers, json=self.params)
+            response = requests.post(url, headers=request_headers, params=self.params)
+        elif self.http_method == 'DELETE':
+            response = requests.delete(url, headers=request_headers, params=self.params)
 
 
         http_status = response.status_code
@@ -134,12 +136,18 @@ class DigitalOceanCommand:
 
         is_ok = http_status_sucess
 
+        data = {}
+        try:
+            data = response.json()
+        except:
+            pass
+
         digitalocean_response = DigitalOceanResponse(
             digital_ocean_command=self,
             http_status=http_status,
             is_ok=is_ok,
             header=response.headers,
-            data=response.json()
+            data=data
         )
 
         msgLog = 'Response:\n{0}'.format(digitalocean_response)
