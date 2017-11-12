@@ -81,6 +81,9 @@ class DigitalOceanCommand:
                      ' -i \n'
 
     def __init__(self, token, url_complement, params=None, http_method='GET'):
+        if not token:
+            raise Exception('Token is required.')
+
         self.token = token
         self.url_complement = url_complement
         self.params = params
@@ -120,7 +123,7 @@ class DigitalOceanCommand:
         response = None
         if self.http_method == 'GET':
             response = requests.get(url, headers=request_headers, params=self.params)
-        elif self.http_metho == 'POST':
+        elif self.http_method == 'POST':
             response = requests.post(url, headers=request_headers, json=self.params)
 
 
@@ -131,7 +134,7 @@ class DigitalOceanCommand:
 
         is_ok = http_status_sucess
 
-        response = DigitalOceanResponse(
+        digitalocean_response = DigitalOceanResponse(
             digital_ocean_command=self,
             http_status=http_status,
             is_ok=is_ok,
@@ -139,17 +142,17 @@ class DigitalOceanCommand:
             data=response.json()
         )
 
-        msgLog = 'Response:\n{0}'.format(response)
+        msgLog = 'Response:\n{0}'.format(digitalocean_response)
 
         # If the error is critical...
-        if (response.http_status == 401) \
+        if (digitalocean_response.http_status == 401) \
                 or (http_status_server_error and self.http_method in ['POST', 'PUT']):
             logging.critical(msgLog)
-            raise Exception('Critical error on execute command. Impossible to continue. Detail: {0}.'.format(header[0]))
+            raise Exception('Critical error on execute command. Impossible to continue. Detail: {0}.'.format(digitalocean_response.http_status))
         else:
             logging.debug(msgLog)
 
-        return response
+        return digitalocean_response
 
 
 class DigitalOceanCommander:
