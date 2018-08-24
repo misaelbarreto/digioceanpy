@@ -13,15 +13,15 @@ class DomainTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.digitalocean = DigitalOcean(token=DIGITAL_OCEAN_TOKEN)
-        cls.domain_name = 'www.digioceanpy{0}.com'.format(random.randint(1000, 9999))
+        cls.domain_name = 'www.digioceanpytest{0}.com'.format(random.randint(1000, 9999))
 
     @classmethod
     def tearDownClass(cls):
         cls.digitalocean = None
 
     def test_list(self):
-        domains = self.digitalocean.domains.list()
-        self.assertTrue(domains.is_ok, 'Problem to list domains.')
+        domains_response = self.digitalocean.domains.list()
+        self.assertTrue(domains_response.is_ok, 'Problem to list domains.')
 
     def test_create(self):
         domains = self.digitalocean.domains.create(name=self.domain_name, ip_address='1.2.3.4')
@@ -31,8 +31,11 @@ class DomainTest(unittest.TestCase):
         domains = self.digitalocean.domains.delete(name=self.domain_name)
         self.assertTrue(domains.is_ok, 'Problem on delete a domain.')
 
-
-
+    # def test_list(self):
+    #     domains_response = self.digitalocean.domains.list()
+    #     for domain in domains_response.data['domains']:
+    #         domains_response_delete = self.digitalocean.domains.delete(name=domain['name'])
+    #         self.assertTrue(domains_response_delete.is_ok, 'Problem on delete a domain.')
 
             # def domain_examle():
 #     # Create a domain...

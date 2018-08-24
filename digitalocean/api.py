@@ -63,8 +63,8 @@ class DigitalOceanResponse(object):
                'is_ok: {3} \n' \
                'header: {4} \n' \
                'data:\n{5}' \
-            .format(self.digital_ocean_command.command,
-                    self.digital_ocean_command.command_to_log(),
+            .format(self.digital_ocean_command.curl_example_command,
+                    self.digital_ocean_command.curl_example_command_to_log,
                     self.http_status,
                     self.is_ok,
                     self.header,
@@ -72,13 +72,13 @@ class DigitalOceanResponse(object):
 
 
 class DigitalOceanCommand:
-    __BASE_COMMAND = 'curl \n' \
-                     ' -X {http_method} \n' \
-                     ' -H "Content-Type: application/json" \n' \
-                     ' -H "Authorization: Bearer {token}" \n' \
-                     ' {params} \n' \
-                     ' "https://api.digitalocean.com/v2/{url_complement}" \n' \
-                     ' -i \n'
+    __CURL_EXAMPLE_COMMAND = 'curl \n' \
+                             ' -X {http_method} \n' \
+                             ' -H "Content-Type: application/json" \n' \
+                             ' -H "Authorization: Bearer {token}" \n' \
+                             ' {params} \n' \
+                             ' "https://api.digitalocean.com/v2/{url_complement}" \n' \
+                             ' -i \n'
 
     def __init__(self, token, url_complement, params=None, http_method='GET'):
         if not token:
@@ -90,28 +90,29 @@ class DigitalOceanCommand:
         self.http_method = http_method
 
     @property
-    def command(self):
-        return self.__mount_command()
+    def curl_example_command(self):
+        return self.__mount_curl_example_command()
 
-    def command_to_log(self):
-        return self.__mount_command(remove_break_lines=False)
+    @property
+    def curl_example_command_to_log(self):
+        return self.__mount_curl_example_command(remove_break_lines=False)
 
-    def __mount_command(self, remove_break_lines=True):
+    def __mount_curl_example_command(self, remove_break_lines=True):
         if self.params:
             params = ' -d \'{0}\''.format(json.dumps(self.params))
         else:
             params = ''
 
-        result = self.__BASE_COMMAND.format(http_method=self.http_method,
-                                            token=self.token,
-                                            params=params,
-                                            url_complement=self.url_complement)
+        result = self.__CURL_EXAMPLE_COMMAND.format(http_method=self.http_method,
+                                                    token=self.token,
+                                                    params=params,
+                                                    url_complement=self.url_complement)
         if remove_break_lines:
             result = result.replace(' \n', '')
         return result
 
     def __str__(self):
-        return self.command
+        return self.curl_example_command
 
     def execute(self):
         request_headers = {
