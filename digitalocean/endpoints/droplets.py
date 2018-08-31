@@ -2,10 +2,10 @@
 from __future__ import with_statement
 
 import logging
-from digitalocean.api import DigitalOceanEndPoint, DigitalOceanCommand, DigitalOceanResponse
+from digitalocean.api import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
 
 
-class Droplet(DigitalOceanEndPoint):
+class Droplet(DigiOceanEndPoint):
     def __init__(self, *args, **kwargs):
         super(Droplet, self).__init__(*args, **kwargs)
 
@@ -24,25 +24,21 @@ class Droplet(DigitalOceanEndPoint):
         logging.info('Retrieving all droplets...')
         # command = DigitalOceanCommand(token=self.token, url_complement='droplets/')
         command = self.commander.create_command()
-        return self._execute_command_and_log_it(command=command,
-                                                msgInfo='Droplets found (total: {total}).',
-                                                msgWarn='No droplets found.')
+        return command.execute(command=command, msgInfo='Droplets found (total: {total}).', msgWarn='No droplets found.')
 
     def get(self, id):
         logging.info('Find the Droplet with id {0}...'.format(id))
         # command = DigitalOceanCommand(token=self.token,
         #                               url_complement='droplets/' + str(id))
         command = self.commander.create_command(endpoint_url_complement=str(id))
-        return self._execute_command_and_log_it(command=command,
-                                                msgInfo='Droplet found.',
-                                                msgWarn='No droplet found.')
+        return command.execute(command=command, msgInfo='Droplet found.', msgWarn='No droplet found.')
 
     def extra_get_by_name(self, name):
-        response = DigitalOceanResponse(digital_ocean_command=None,
-                                        http_status=None,
-                                        is_ok=False,
-                                        header=None,
-                                        data={'id': 'droplet_not_found',
+        response = DigiOceanResponse(digital_ocean_command=None,
+                                     http_status=None,
+                                     is_ok=False,
+                                     header=None,
+                                     data={'id': 'droplet_not_found',
                                               'message': 'There is no droplet with this name.'})
 
         logging.info('Find Droplet with the name "{0}"...'.format(name))
@@ -50,11 +46,11 @@ class Droplet(DigitalOceanEndPoint):
         if all_droplets.is_ok:
             for droplet in all_droplets.data['droplets']:
                 if droplet['name'] == name:
-                    response = DigitalOceanResponse(digital_ocean_command=None,
-                                                    http_status=None,
-                                                    is_ok=True,
-                                                    header=None,
-                                                    data={'droplet': droplet})
+                    response = DigiOceanResponse(digital_ocean_command=None,
+                                                 http_status=None,
+                                                 is_ok=True,
+                                                 header=None,
+                                                 data={'droplet': droplet})
 
                     break
 
@@ -91,7 +87,7 @@ class Droplet(DigitalOceanEndPoint):
         '''
         logging.info('Creating droplet "{0}"...'.format(name))
 
-        if isinstance(ssh_keys, DigitalOceanResponse):
+        if isinstance(ssh_keys, DigiOceanResponse):
             logging.debug('Obtain the ssh key id from a DigitalOceanResponse...')
             ssh_keys = ssh_keys.extract_value_from_data('ssh_key.id')
             if not isinstance(ssh_keys, list):
@@ -116,6 +112,6 @@ class Droplet(DigitalOceanEndPoint):
         #                               http_method='POST')
         command = self.commander.create_command(params=params,
                                                 http_method='POST')
-        return self._execute_command_and_log_it(command=command,
+        return command.execute(command=command,
                                                 msgInfo='Droplet created with success.',
                                                 msgError='Error on create droplet.')

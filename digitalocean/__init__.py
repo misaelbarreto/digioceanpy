@@ -2,13 +2,13 @@
 from __future__ import with_statement
 
 from .endpoints.ssh_keys import SshKey
-from .endpoints.domains import Domain
+from .endpoints.domains import DomainEndpoint
 from .endpoints.droplets import Droplet
 
 
 class DigitalOcean:
     def __init__(self, token):
-        self.domains = Domain(token=token, endpoint_url='domains/')
+        self.domains = DomainEndpoint(token=token, endpoint_url='domains/')
         self.ssh_keys = SshKey(token=token, endpoint_url='account/keys/')
         self.droplets = Droplet(token=token, endpoint_url='droplets/')
 

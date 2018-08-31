@@ -2,14 +2,23 @@
 from __future__ import with_statement
 
 import logging
-from digitalocean.api import DigitalOceanEndPoint, DigitalOceanCommand
+from digitalocean.api import DigiOceanEndPoint, DigiOceanCommand
+from digitalocean.endpoints import DigiOceanModel
 
 
-class Domain(DigitalOceanEndPoint):
+class Domain(DigiOceanModel):
+    def __init__(self, name=None, ttl=None, zone_file=None, *args, **kwargs):
+        self.name = name
+        self.ttl = ttl
+        self.zone_file = zone_file
+        # super(Domain, self).__init__(*args, **kwargs)
+
+
+class DomainEndpoint(DigiOceanEndPoint):
     def __init__(self, *args, **kwargs):
-        super(Domain, self).__init__(*args, **kwargs)
+        super(DomainEndpoint, self).__init__(*args, **kwargs)
 
-    def list(self):
+    def list(self, return_response=False):
         '''
         To retrieve a list of all of the domains in your account,
 
@@ -24,9 +33,10 @@ class Domain(DigitalOceanEndPoint):
         logging.info('Retrieving all domains...')
         # command = DigitalOceanCommand(token=self.token, url_complement='domains/')
         command = self.commander.create_command()
-        return self._execute_command_and_log_it(command=command,
-                                                msg_info='Domains found (total: {total}).',
-                                                msg_warn='No domains found.')
+        result = command.execute(parser=Domain, data_field_to_parser='domains',
+                                 msg_info='Domains found (total: {total}).', msg_warn='No domains found.')
+        # result.data_obj = Domain.load(result.data['domains'])
+        return result
 
     def get(self, domain_name):
         '''
@@ -45,9 +55,9 @@ class Domain(DigitalOceanEndPoint):
         # command = DigitalOceanCommand(token=self.token,
         #                              url_complement='domains/{0}'.format(domain_name))
         command = self.commander.create_command(endpoint_url_complement=domain_name)
-        return self._execute_command_and_log_it(command=command,
-                                                msg_info='Domain found.',
-                                                msg_warn='Domain not found.')
+        return command.execute(command=command,
+                               msg_info='Domain found.',
+                               msg_warn='Domain not found.')
 
     def create(self, name, ip_address):
         '''
@@ -70,9 +80,10 @@ class Domain(DigitalOceanEndPoint):
         #                               params=params,
         #                               http_method='POST')
         command = self.commander.create_command(params=params, http_method='POST')
-        return self._execute_command_and_log_it(command=command,
-                                                msg_info='Domain created with success.',
-                                                msgError='Error on create domain.')
+        response = command.execute(parser=Domain, data_field_to_parser='domain',
+                                   msg_info='Domains found (total: {total}).',
+                                   msg_warn='No domains found.',)
+        return response
 
     def delete(self, name):
         logging.info('Deleting the domain "{0}"...'.format(name))
@@ -81,6 +92,6 @@ class Domain(DigitalOceanEndPoint):
         #                               http_method='DELETE')
         command = self.commander.create_command(endpoint_url_complement=str(name),
                                                 http_method='DELETE')
-        return self._execute_command_and_log_it(command=command,
-                                                msg_info='Domain deleted with success.',
-                                                msgError='Error on delete domain.')
+        return command.execute(command=command,
+                               msg_info='Domain deleted with success.',
+                               msgError='Error on delete domain.')

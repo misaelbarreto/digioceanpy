@@ -8,45 +8,33 @@ import requests
 from .utils import show_dict_as_pretty_json, extract_data_from_dict
 
 
-class DigitalOceanEndPoint(object):
-    def __init__(self, token, endpoint_url):
-        self.commander = DigitalOceanCommander(token=token, endpoint_url=endpoint_url)
-
-    def _execute_command_and_log_it(self, command, *args, **kwargs):
-        response = command.execute()
-
-        if response.is_ok:
-            msg_info = kwargs.get('msg_info', None)
-            if msg_info:
-                if '{total}' in msg_info:
-                    total = response.data.get('meta', {}).get('total', None)
-                    if total is None:
-                        total = 'no information'
-                    else:
-                        total = str(total)
-
-                    msg_info = msg_info.format(total=str(total))
-
-                logging.info(msg_info)
-        else:
-            msg_warm = kwargs.get('msg_warn', None)
-            if msg_warm:
-                logging.warn(msg_warm)
-            else:
-                msg_error = kwargs.get('msg_error', None)
-                if msg_error:
-                    logging.error(msg_error)
-
-        return response
+class DigiOceanEndPoint(object):
+    def __init__(self, token=None, endpoint_url=None):
+        self.commander = DigiOceanCommander(token=token, endpoint_url=endpoint_url)
 
 
-class DigitalOceanResponse(object):
-    def __init__(self, digital_ocean_command, http_status, is_ok, header, data):
+class DigiOceanRequest(object):
+    def __init__(self, http_method, headers, url, params=None):
+        self.headers = headers
+        self.url = url
+        self.http_method = http_method
+        self.params = params
+
+
+class DigiOceanResponse(object):
+    def __init__(self, digital_ocean_command, http_status, is_ok, header, data, command):
         self.digital_ocean_command = digital_ocean_command
         self.http_status = http_status
         self.is_ok = is_ok
         self.header = header
         self.data = data
+        self.command = command
+        self.data_obj = None
+
+    def parser(self):
+        if self.data_obj:
+            return self.data_obj
+        return None
 
     def extract_value_from_data(self, full_attribute_name):
         try:
@@ -71,23 +59,30 @@ class DigitalOceanResponse(object):
                     show_dict_as_pretty_json(self.data))
 
 
-class DigitalOceanCommand:
+class DigiOceanCommand:
     __CURL_EXAMPLE_COMMAND = 'curl \n' \
                              ' -X {http_method} \n' \
                              ' -H "Content-Type: application/json" \n' \
                              ' -H "Authorization: Bearer {token}" \n' \
                              ' {params} \n' \
-                             ' "https://api.digitalocean.com/v2/{url_complement}" \n' \
+                             ' "{url}" \n' \
                              ' -i \n'
 
-    def __init__(self, token, url_complement, params=None, http_method='GET'):
+    def __init__(self, token, url_complement=None, params=None, http_method='GET'):
         if not token:
             raise Exception('Token is required.')
 
         self.token = token
         self.url_complement = url_complement
-        self.params = params
-        self.http_method = http_method
+
+        # Montando o objeto de REQUEST.
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer {0}'.format(self.token)}
+
+        url = 'https://api.digitalocean.com/v2/{0}'.format(self.url_complement)
+        request = DigiOceanRequest(http_method=http_method, headers=headers, url=url, params=params)
+        self.request = request
 
     @property
     def curl_example_command(self):
@@ -98,15 +93,15 @@ class DigitalOceanCommand:
         return self.__mount_curl_example_command(remove_break_lines=False)
 
     def __mount_curl_example_command(self, remove_break_lines=True):
-        if self.params:
-            params = ' -d \'{0}\''.format(json.dumps(self.params))
+        if self.request.params:
+            params = ' -d \'{0}\''.format(json.dumps(self.request.params))
         else:
             params = ''
 
-        result = self.__CURL_EXAMPLE_COMMAND.format(http_method=self.http_method,
+        result = self.__CURL_EXAMPLE_COMMAND.format(http_method=self.request.http_method,
                                                     token=self.token,
                                                     params=params,
-                                                    url_complement=self.url_complement)
+                                                    url=self.request.url)
         if remove_break_lines:
             result = result.replace(' \n', '')
         return result
@@ -114,21 +109,14 @@ class DigitalOceanCommand:
     def __str__(self):
         return self.curl_example_command
 
-    def execute(self):
-        request_headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer {0}'.format(self.token)}
-
-        url = 'https://api.digitalocean.com/v2/{0}'.format(self.url_complement)
-
+    def execute(self, parser=None, data_field_to_parser=None, *args, **kwargs):
         response = None
-        if self.http_method == 'GET':
-            response = requests.get(url, headers=request_headers, params=self.params)
-        elif self.http_method == 'POST':
-            response = requests.post(url, headers=request_headers, params=self.params)
-        elif self.http_method == 'DELETE':
-            response = requests.delete(url, headers=request_headers, params=self.params)
-
+        if self.request.http_method == 'GET':
+            response = requests.get(self.request.url, headers=self.request.headers, params=self.request.params)
+        elif self.request.http_method == 'POST':
+            response = requests.post(self.request.url, headers=self.request.headers, params=self.request.params)
+        elif self.request.http_method == 'DELETE':
+            response = requests.delete(self.request.url, headers=self.request.headers, params=self.request.params)
 
         http_status = response.status_code
         http_status_sucess = (200 <= http_status <= 299)
@@ -143,34 +131,60 @@ class DigitalOceanCommand:
         except:
             pass
 
-        digitalocean_response = DigitalOceanResponse(
+        digi_ocean_response = DigiOceanResponse(
             digital_ocean_command=self,
             http_status=http_status,
             is_ok=is_ok,
             header=response.headers,
-            data=data
+            data=data,
+            command=self
         )
 
-        msgLog = 'Response:\n{0}'.format(digitalocean_response)
+        if parser and data_field_to_parser and data:
+            digi_ocean_response.data_obj = parser.load(data[data_field_to_parser])
+
+        msgLog = 'Response:\n{0}'.format(digi_ocean_response)
 
         # If the error is critical...
-        if (digitalocean_response.http_status == 401) \
+        if (digi_ocean_response.http_status == 401) \
                 or (http_status_server_error and self.http_method in ['POST', 'PUT']):
             logging.critical(msgLog)
-            raise Exception('Critical error on execute command. Impossible to continue. Detail: {0}.'.format(digitalocean_response.http_status))
+            raise Exception('Critical error on execute command. Impossible to continue. Detail: {0}.'.format(digi_ocean_response.http_status))
         else:
             logging.debug(msgLog)
 
-        return digitalocean_response
+
+        msg_info = kwargs.get('msg_info', None)
+        if msg_info:
+            if '{total}' in msg_info:
+                total = digi_ocean_response.data.get('meta', {}).get('total', None)
+                if total is None:
+                    total = 'no information'
+                else:
+                    total = str(total)
+
+                msg_info = msg_info.format(total=str(total))
+
+            logging.info(msg_info)
+        else:
+            msg_warm = kwargs.get('msg_warn', None)
+            if msg_warm:
+                logging.warn(msg_warm)
+            else:
+                msg_error = kwargs.get('msg_error', None)
+                if msg_error:
+                    logging.error(msg_error)
+
+        return digi_ocean_response
 
 
-class DigitalOceanCommander:
+class DigiOceanCommander:
     def __init__(self, token, endpoint_url):
         self.token = token
         self.endpoint_url = endpoint_url
 
     def create_command(self, endpoint_url_complement='', params=None, http_method='GET'):
-        return DigitalOceanCommand(token=self.token,
-                                   url_complement=self.endpoint_url + endpoint_url_complement,
-                                   params=params,
-                                   http_method=http_method)
+        return DigiOceanCommand(token=self.token,
+                                url_complement=self.endpoint_url + endpoint_url_complement,
+                                params=params,
+                                http_method=http_method)

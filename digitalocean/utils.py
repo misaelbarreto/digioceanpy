@@ -6,32 +6,32 @@ import os
 from os import path
 import json
 
-from fabric.api import local
+#from fabric.api import local
 
 
 def show_dict_as_pretty_json(data):
     return json.dumps(data, indent=4, sort_keys=True)
-
-def get_or_create_local_ssh_key():
-    home_dir = local('echo $HOME', capture=True)
-    ssh_dir = path.join(home_dir, '.ssh')
-    public_key_path = path.join(ssh_dir, 'id_rsa.pub')
-
-    if not os.path.exists(ssh_dir):
-        local('mkdir %s' % ssh_dir)
-
-    logging.info('Checking if exists the file "{0}"...'.format(public_key_path))
-    if not path.exists(public_key_path):
-        logging.info('File not exists. It will be created...')
-        local("ssh-keygen -f %s/id_rsa -t rsa -N ''" % ssh_dir)
-        logging.info('File created.')
-    else:
-        logging.info('File exists.')
-
-
-    public_key = open(public_key_path, 'r').read().strip()
-    logging.info('Local public key got with success...')
-    return public_key
+#
+# def get_or_create_local_ssh_key():
+#     home_dir = local('echo $HOME', capture=True)
+#     ssh_dir = path.join(home_dir, '.ssh')
+#     public_key_path = path.join(ssh_dir, 'id_rsa.pub')
+#
+#     if not os.path.exists(ssh_dir):
+#         local('mkdir %s' % ssh_dir)
+#
+#     logging.info('Checking if exists the file "{0}"...'.format(public_key_path))
+#     if not path.exists(public_key_path):
+#         logging.info('File not exists. It will be created...')
+#         local("ssh-keygen -f %s/id_rsa -t rsa -N ''" % ssh_dir)
+#         logging.info('File created.')
+#     else:
+#         logging.info('File exists.')
+#
+#
+#     public_key = open(public_key_path, 'r').read().strip()
+#     logging.info('Local public key got with success...')
+#     return public_key
 
 
 def extract_data_from_dict(data, full_attribute_name, result=None):

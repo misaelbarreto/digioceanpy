@@ -2,10 +2,10 @@
 from __future__ import with_statement
 
 import logging
-from digitalocean.api import DigitalOceanEndPoint, DigitalOceanCommand, DigitalOceanResponse
+from digitalocean.api import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
 
 
-class SshKey(DigitalOceanEndPoint):
+class SshKey(DigiOceanEndPoint):
     def __init__(self, *args, **kwargs):
         super(SshKey, self).__init__(*args, **kwargs)
 
@@ -25,7 +25,7 @@ class SshKey(DigitalOceanEndPoint):
         # command = DigitalOceanCommand(token=self.token,
         #                               url_complement='account/keys/')
         command = self.commander.create_command()
-        return self._execute_command_and_log_it(command=command,
+        return self.execute(command=command,
                                                 msgInfo='SSH Keys found (total: {total}).',
                                                 msgWarn='No SSH Keys found.')
 
@@ -34,16 +34,16 @@ class SshKey(DigitalOceanEndPoint):
         # command = DigitalOceanCommand(token=self.token,
         #                               url_complement='account/keys/' + str(id_or_fingerprint))
         command = self.commander.create_command(endpoint_url_complement=str(id_or_fingerprint))
-        return self._execute_command_and_log_it(command=command,
+        return self.execute(command=command,
                                                 msgInfo='SSH Key found.',
                                                 msgWarn='No SSH Key found.')
 
     def extra_get_by_public_key(self, public_key):
-        response = DigitalOceanResponse(digital_ocean_command=None,
-                                        http_status=None,
-                                        is_ok=False,
-                                        header=None,
-                                        data={'id': 'key_not_found',
+        response = DigiOceanResponse(digital_ocean_command=None,
+                                     http_status=None,
+                                     is_ok=False,
+                                     header=None,
+                                     data={'id': 'key_not_found',
                                               'message': 'There is no ssh key with this signature.'})
 
         public_key_first_letters = public_key[:30]
@@ -52,11 +52,11 @@ class SshKey(DigitalOceanEndPoint):
         if all_ssh_keys.is_ok:
             for key in all_ssh_keys.data['ssh_keys']:
                 if key['public_key'] == public_key:
-                    response = DigitalOceanResponse(digital_ocean_command=None,
-                                                    http_status=None,
-                                                    is_ok=True,
-                                                    header=None,
-                                                    data={'ssh_key': key})
+                    response = DigiOceanResponse(digital_ocean_command=None,
+                                                 http_status=None,
+                                                 is_ok=True,
+                                                 header=None,
+                                                 data={'ssh_key': key})
 
                     break
 
@@ -76,7 +76,7 @@ class SshKey(DigitalOceanEndPoint):
         #                               http_method='POST')
         command = self.commander.create_command(params=params,
                                                 http_method='POST')
-        return self._execute_command_and_log_it(command=command,
+        return self.execute(command=command,
                                                 msgInfo='SSH Key created with success.',
                                                 msgError='Error on create ssh key.')
 
@@ -86,6 +86,6 @@ class SshKey(DigitalOceanEndPoint):
         #                               http_method='DELETE')
         command = self.commander.create_command(endpoint_url_complement=(id_or_fingerprint),
                                                 http_method='DELETE')
-        return self._execute_command_and_log_it(command=command,
+        return self.execute(command=command,
                                                 msgInfo='SSH Key deleted with success.',
                                                 msgError='Error on delete ssh key.')

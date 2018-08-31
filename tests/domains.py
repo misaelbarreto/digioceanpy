@@ -5,7 +5,7 @@ import logging
 import unittest
 import random
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
 #digitalocean = DigitalOcean(token=DIGITAL_OCEAN_TOKEN)
 
 class DomainTest(unittest.TestCase):
@@ -20,16 +20,17 @@ class DomainTest(unittest.TestCase):
         cls.digitalocean = None
 
     def test_list(self):
-        domains_response = self.digitalocean.domains.list()
-        self.assertTrue(domains_response.is_ok, 'Problem to list domains.')
+        domains = self.digitalocean.domains.list().parser()
+        print domains
+        self.assertTrue(domains is not None, 'Problem to list domains.')
 
     def test_create(self):
-        domains = self.digitalocean.domains.create(name=self.domain_name, ip_address='1.2.3.4')
-        self.assertTrue(domains.is_ok, 'Problem on create a domain.')
-
-    def test_destroy(self):
-        domains = self.digitalocean.domains.delete(name=self.domain_name)
-        self.assertTrue(domains.is_ok, 'Problem on delete a domain.')
+        domain = self.digitalocean.domains.create(name=self.domain_name, ip_address='1.2.3.4').parser()
+        self.assertTrue(domain, 'Problem on create a domain.')
+    #
+    # def test_destroy(self):
+    #     domains = self.digitalocean.domains.delete(name=self.domain_name)
+    #     self.assertTrue(domains.is_ok, 'Problem on delete a domain.')
 
     # def test_list(self):
     #     domains_response = self.digitalocean.domains.list()
