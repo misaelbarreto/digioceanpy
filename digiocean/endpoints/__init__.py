@@ -3,9 +3,10 @@ from __future__ import with_statement
 
 import json
 import logging
+
 import requests
 
-from .utils import show_dict_as_pretty_json, extract_data_from_dict
+from digiocean.utils import show_dict_as_pretty_json, extract_data_from_dict
 
 
 class DigiOceanEndPoint(object):
@@ -32,7 +33,7 @@ class DigiOceanResponse(object):
         self.data_obj = None
 
     def parser(self):
-        if self.data_obj:
+        if self.data_obj is not None:
             return self.data_obj
         return None
 
@@ -147,29 +148,31 @@ class DigiOceanCommand:
 
         # If the error is critical...
         if (digi_ocean_response.http_status == 401) \
-                or (http_status_server_error and self.http_method in ['POST', 'PUT']):
+                or (http_status_server_error and self.request.http_method in ['POST', 'PUT']):
             logging.critical(msgLog)
             raise Exception('Critical error on execute command. Impossible to continue. Detail: {0}.'.format(digi_ocean_response.http_status))
         else:
             logging.debug(msgLog)
 
 
-        msg_info = kwargs.get('msg_info', None)
-        if msg_info:
-            if '{total}' in msg_info:
-                total = digi_ocean_response.data.get('meta', {}).get('total', None)
-                if total is None:
-                    total = 'no information'
-                else:
-                    total = str(total)
+        if http_status_sucess:
+            msg_info = kwargs.get('msg_info', None)
+            if msg_info:
+                if '{total}' in msg_info:
+                    total = digi_ocean_response.data.get('meta', {}).get('total', None)
+                    if total is None:
+                        total = 'no information'
+                    else:
+                        total = str(total)
 
-                msg_info = msg_info.format(total=str(total))
+                    msg_info = msg_info.format(total=str(total))
 
-            logging.info(msg_info)
+                logging.info(msg_info)
         else:
-            msg_warm = kwargs.get('msg_warn', None)
-            if msg_warm:
-                logging.warn(msg_warm)
+            if self.request.http_method == 'GET':
+                msg_warm = kwargs.get('msg_warn', None)
+                if msg_warm:
+                    logging.warn(msg_warm)
             else:
                 msg_error = kwargs.get('msg_error', None)
                 if msg_error:

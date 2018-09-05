@@ -2,7 +2,7 @@
 from __future__ import with_statement
 
 import logging
-from digitalocean.api import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
+from digiocean.endpoints import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
 
 
 class Droplet(DigiOceanEndPoint):
@@ -17,7 +17,7 @@ class Droplet(DigiOceanEndPoint):
         Url: https://developers.digitalocean.com/documentation/v2/#list-all-droplets
 
         Example:
-        curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" "https://api.digitalocean.com/v2/droplets?page=1&per_page=1"
+        curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" "https://api.digiocean.com/v2/droplets?page=1&per_page=1"
 
         :return: a DigitalOceanResponse.
         '''
@@ -80,7 +80,7 @@ class Droplet(DigiOceanEndPoint):
         Url: https://developers.digitalocean.com/documentation/v2/#create-a-new-droplet
 
         Example:
-        curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" -d '{"name":"examples.com","region":"nyc3","size":"512mb","image":"ubuntu-14-04-x64","ssh_keys":null,"backups":false,"ipv6":true,"user_data":null,"private_networking":null,"volumes": null,"tags":["web"]}' "https://api.digitalocean.com/v2/droplets"
+        curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" -d '{"name":"examples.com","region":"nyc3","size":"512mb","image":"ubuntu-14-04-x64","ssh_keys":null,"backups":false,"ipv6":true,"user_data":null,"private_networking":null,"volumes": null,"tags":["web"]}' "https://api.digiocean.com/v2/droplets"
 
         To see details params, view DigitalOcean API Documentation.
         :return: a DigitalOceanResponse.

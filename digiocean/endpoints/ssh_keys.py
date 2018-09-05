@@ -2,7 +2,7 @@
 from __future__ import with_statement
 
 import logging
-from digitalocean.api import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
+from digiocean.endpoints import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
 
 
 class SshKey(DigiOceanEndPoint):
@@ -17,7 +17,7 @@ class SshKey(DigiOceanEndPoint):
         Url: https://developers.digitalocean.com/documentation/v2/#list-all-keys
 
         Example:
-        curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" "https://api.digitalocean.com/v2/account/keys"
+        curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" "https://api.digiocean.com/v2/account/keys"
 
         :return: a DigitalOceanResponse.
         '''

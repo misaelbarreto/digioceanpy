@@ -6,7 +6,7 @@ from .endpoints.domains import DomainEndpoint
 from .endpoints.droplets import Droplet
 
 
-class DigitalOcean:
+class DigiOcean:
     def __init__(self, token):
         self.domains = DomainEndpoint(token=token, endpoint_url='domains/')
         self.ssh_keys = SshKey(token=token, endpoint_url='account/keys/')
