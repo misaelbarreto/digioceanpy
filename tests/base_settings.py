@@ -1,5 +1,5 @@
 # Create your "examples/settings.py" file based on this file.
-DIGITAL_OCEAN_TOKEN = ''
+digi_ocean_TOKEN = ''
 DOMAIN_NAME = ''
 DOMAIN_IP_ADDRESS = ''
 

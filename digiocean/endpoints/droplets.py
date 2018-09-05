@@ -2,7 +2,7 @@
 from __future__ import with_statement
 
 import logging
-from digiocean.endpoints import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
+from digiocean.endpoints import DigiOceanEndPoint, DigiOceanResponse
 
 
 class Droplet(DigiOceanEndPoint):
@@ -34,7 +34,7 @@ class Droplet(DigiOceanEndPoint):
         return command.execute(command=command, msgInfo='Droplet found.', msgWarn='No droplet found.')
 
     def extra_get_by_name(self, name):
-        response = DigiOceanResponse(digital_ocean_command=None,
+        response = DigiOceanResponse(digi_ocean_command=None,
                                      http_status=None,
                                      is_ok=False,
                                      header=None,
@@ -46,7 +46,7 @@ class Droplet(DigiOceanEndPoint):
         if all_droplets.is_ok:
             for droplet in all_droplets.data['droplets']:
                 if droplet['name'] == name:
-                    response = DigiOceanResponse(digital_ocean_command=None,
+                    response = DigiOceanResponse(digi_ocean_command=None,
                                                  http_status=None,
                                                  is_ok=True,
                                                  header=None,

@@ -67,8 +67,8 @@ class DomainEndpoint(DigiOceanEndPoint):
         params = {'name': name, 'ip_address': ip_address}
         command = self.commander.create_command(params=params, http_method='POST')
         response = command.execute(parser=Domain, data_field_to_parser='domain',
-                                   msg_info='Domains found (total: {total}).',
-                                   msg_warn='No domains found.', )
+                                   msg_info='Domains created.',
+                                   msg_error='Error on create domain', )
         return response
 
     def delete(self, name):

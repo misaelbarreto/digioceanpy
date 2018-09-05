@@ -39,7 +39,7 @@ class SshKey(DigiOceanEndPoint):
                                                 msgWarn='No SSH Key found.')
 
     def extra_get_by_public_key(self, public_key):
-        response = DigiOceanResponse(digital_ocean_command=None,
+        response = DigiOceanResponse(digi_ocean_command=None,
                                      http_status=None,
                                      is_ok=False,
                                      header=None,
@@ -52,7 +52,7 @@ class SshKey(DigiOceanEndPoint):
         if all_ssh_keys.is_ok:
             for key in all_ssh_keys.data['ssh_keys']:
                 if key['public_key'] == public_key:
-                    response = DigiOceanResponse(digital_ocean_command=None,
+                    response = DigiOceanResponse(digi_ocean_command=None,
                                                  http_status=None,
                                                  is_ok=True,
                                                  header=None,

@@ -23,8 +23,8 @@ class DigiOceanRequest(object):
 
 
 class DigiOceanResponse(object):
-    def __init__(self, digital_ocean_command, http_status, is_ok, header, data, command):
-        self.digital_ocean_command = digital_ocean_command
+    def __init__(self, digi_ocean_command, http_status, is_ok, header, data, command):
+        self.digi_ocean_command = digi_ocean_command
         self.http_status = http_status
         self.is_ok = is_ok
         self.header = header
@@ -47,13 +47,13 @@ class DigiOceanResponse(object):
             raise e
 
     def __str__(self):
-        return 'digital_ocean_command:\n- full: {0} \n- detailed:\n {1}' \
+        return 'digi_ocean_command:\n- full: {0} \n- detailed:\n {1}' \
                'http_status: {2} \n' \
                'is_ok: {3} \n' \
                'header: {4} \n' \
                'data:\n{5}' \
-            .format(self.digital_ocean_command.curl_example_command,
-                    self.digital_ocean_command.curl_example_command_to_log,
+            .format(self.digi_ocean_command.curl_example_command,
+                    self.digi_ocean_command.curl_example_command_to_log,
                     self.http_status,
                     self.is_ok,
                     self.header,
@@ -133,7 +133,7 @@ class DigiOceanCommand:
             pass
 
         digi_ocean_response = DigiOceanResponse(
-            digital_ocean_command=self,
+            digi_ocean_command=self,
             http_status=http_status,
             is_ok=is_ok,
             header=response.headers,
@@ -146,6 +146,7 @@ class DigiOceanCommand:
 
         msgLog = 'Response:\n{0}'.format(digi_ocean_response)
 
+        # TODO: Analyse if a error on DELETE is critical too?
         # If the error is critical...
         if (digi_ocean_response.http_status == 401) \
                 or (http_status_server_error and self.request.http_method in ['POST', 'PUT']):
@@ -169,14 +170,22 @@ class DigiOceanCommand:
 
                 logging.info(msg_info)
         else:
+            message = digi_ocean_response.data.get('message', '')
+
             if self.request.http_method == 'GET':
                 msg_warm = kwargs.get('msg_warn', None)
                 if msg_warm:
-                    logging.warn(msg_warm)
+                    if message:
+                        logging.warn(u'{}. {}'.format(msg_warm, message))
+                    else:
+                        logging.warn(msg_warm)
             else:
                 msg_error = kwargs.get('msg_error', None)
                 if msg_error:
-                    logging.error(msg_error)
+                    if message:
+                        logging.error(u'{}. {}'.format(msg_error, message))
+                    else:
+                        logging.error(msg_error)
 
         return digi_ocean_response
 

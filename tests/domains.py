@@ -3,7 +3,7 @@ from __future__ import with_statement
 
 from digiocean import DigiOcean
 # Create your "tests/settings.py" file based on the "tests/base_settings.py".
-from settings import DIGITAL_OCEAN_TOKEN, DOMAIN_NAME, DOMAIN_IP_ADDRESS
+from settings import digi_ocean_TOKEN, DOMAIN_NAME, DOMAIN_IP_ADDRESS
 import logging
 import unittest
 import random
@@ -14,7 +14,7 @@ class DomainTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.digiocean = DigiOcean(token=DIGITAL_OCEAN_TOKEN)
+        cls.digiocean = DigiOcean(token=digi_ocean_TOKEN)
         cls.base_domain_name = 'www.digioceanpy-test-'
         cls.domain_name = '{}{}.com'.format(cls.base_domain_name, random.randint(1000, 9999))
 
@@ -28,7 +28,7 @@ class DomainTest(unittest.TestCase):
 
     def test_02_get(self):
         domain = self.digiocean.domains.get(name=self.domain_name)
-        self.assertTrue(domain, 'Problem on get domain.')
+        self.assertTrue(domain, 'Problem on get a domain.')
 
     def test_03_list(self):
         domains = self.digiocean.domains.list().parser()
@@ -38,14 +38,14 @@ class DomainTest(unittest.TestCase):
         digiocean_response = self.digiocean.domains.delete(name=self.domain_name)
         self.assertTrue(digiocean_response.is_ok, 'Problem on delete a domain.')
 
-    def test_05_destroy_all_test_domains(self):
-        # Zerando todos os domínios de teste, caso existam.
+    def test_05_destroy_inexisting_domain(self):
+        digiocean_response = self.digiocean.domains.delete(name=self.domain_name+'xxx')
+        self.assertFalse(digiocean_response.is_ok, 'Not problem on try to delete a domain that not exists')
+
+    def test_06_destroy_all_test_domains(self):
+        # Deleting all test domanis, if exists!
         logging.info('Deleting all test domains...')
         domains = self.digiocean.domains.list().parser()
         for d in domains:
             if self.base_domain_name in d.name:
                 self.digiocean.domains.delete(name=d.name)
-
-#
-# if __name__ == '__main__':
-#     domain_examle()
