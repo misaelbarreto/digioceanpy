@@ -47,13 +47,13 @@ class DigiOceanResponse(object):
             raise e
 
     def __str__(self):
-        return 'digi_ocean_command:\n- full: {0} \n- detailed:\n {1}' \
+        return 'curl_command_example:\n- full:\n {0} \n- detailed:\n {1}' \
                'http_status: {2} \n' \
                'is_ok: {3} \n' \
                'header: {4} \n' \
                'data:\n{5}' \
-            .format(self.digi_ocean_command.curl_example_command,
-                    self.digi_ocean_command.curl_example_command_to_log,
+            .format(self.digi_ocean_command.curl_command_example,
+                    self.digi_ocean_command.curl_command_example_to_log,
                     self.http_status,
                     self.is_ok,
                     self.header,
@@ -86,11 +86,11 @@ class DigiOceanCommand:
         self.request = request
 
     @property
-    def curl_example_command(self):
+    def curl_command_example(self):
         return self.__mount_curl_example_command()
 
     @property
-    def curl_example_command_to_log(self):
+    def curl_command_example_to_log(self):
         return self.__mount_curl_example_command(remove_break_lines=False)
 
     def __mount_curl_example_command(self, remove_break_lines=True):
@@ -108,7 +108,7 @@ class DigiOceanCommand:
         return result
 
     def __str__(self):
-        return self.curl_example_command
+        return self.curl_command_example
 
     def execute(self, parser=None, data_field_to_parser=None, *args, **kwargs):
         response = None
@@ -176,14 +176,14 @@ class DigiOceanCommand:
                 msg_warm = kwargs.get('msg_warn', None)
                 if msg_warm:
                     if message:
-                        logging.warn(u'{}. {}'.format(msg_warm, message))
+                        logging.warn(u'{} {}'.format(msg_warm, message))
                     else:
                         logging.warn(msg_warm)
             else:
                 msg_error = kwargs.get('msg_error', None)
                 if msg_error:
                     if message:
-                        logging.error(u'{}. {}'.format(msg_error, message))
+                        logging.error(u'{} {}'.format(msg_error, message))
                     else:
                         logging.error(msg_error)
 
