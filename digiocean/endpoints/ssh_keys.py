@@ -27,8 +27,8 @@ class SshKeyEndpoint(DigiOceanEndPoint):
         command = self.commander.create_command()
         response = command.execute(parser=SshKey,
                                    data_field_to_parser='ssh_keys',
-                                   msgInfo='SSH Keys found (total: {total}).',
-                                   msgWarn='No SSH Keys found.')
+                                   msg_info='SSH Keys found (total: {total}).',
+                                   msg_warn='No SSH Keys found.')
 
         return response
 
@@ -49,9 +49,9 @@ class SshKeyEndpoint(DigiOceanEndPoint):
         logging.info(u'Find the SSH Keys {}...'.format(id_or_fingerprint))
         command = self.commander.create_command(endpoint_url_complement=str(id_or_fingerprint))
         response = command.execute(parser=SshKey,
-                                   data_field_to_parser='ssh_keys',
-                                   msgInfo='SSH Key found.',
-                                   msgWarn='No SSH Key found.')
+                                   data_field_to_parser='ssh_key',
+                                   msg_info='SSH Key found.',
+                                   msg_warn='No SSH Key found.')
 
         return response
 
@@ -112,8 +112,8 @@ class SshKeyEndpoint(DigiOceanEndPoint):
                                                 http_method='POST')
         response = command.execute(parser=SshKey,
                                    data_field_to_parser='ssh_key',
-                                   msgInfo='SSH Key created with success.',
-                                   msgError='Error on create ssh key.')
+                                   msg_info='SSH Key created with success.',
+                                   msg_error='Error on create ssh key.')
         return response
 
     def delete(self, id_or_fingerprint):
@@ -130,8 +130,8 @@ class SshKeyEndpoint(DigiOceanEndPoint):
         :param id_or_fingerprint:
         :return: a DigitalOceanResponse.
         '''
-        command = self.commander.create_command(endpoint_url_complement=id_or_fingerprint,
+        command = self.commander.create_command(endpoint_url_complement=str(id_or_fingerprint),
                                                 http_method='DELETE')
-        response = command.execute(msgInfo='SSH Key deleted with success.',
-                                   msgError='Error on delete ssh key.')
+        response = command.execute(msg_info='SSH Key deleted with success.',
+                                   msg_error='Error on delete ssh key.')
         return response

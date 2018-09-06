@@ -141,17 +141,18 @@ class DigiOceanCommand:
             command=self
         )
 
-        if parser and data_field_to_parser and data:
+        if is_ok and data and parser and data_field_to_parser:
             digi_ocean_response.data_obj = parser.load(data[data_field_to_parser])
 
         msgLog = 'Response:\n{0}'.format(digi_ocean_response)
 
+        message = digi_ocean_response.data.get('message', '')
         # TODO: Analyse if a error on DELETE is critical too?
         # If the error is critical...
         if (digi_ocean_response.http_status == 401) \
-                or (http_status_server_error and self.request.http_method in ['POST', 'PUT']):
+                or (http_status_server_error and self.request.http_method in ['POST', 'PUT', 'DELETE']):
             logging.critical(msgLog)
-            raise Exception('Critical error on execute command. Impossible to continue. Detail: {0}.'.format(digi_ocean_response.http_status))
+            raise Exception('Critical error on execute command. Impossible to continue. HttpStatus: {}. Message: {}.'.format(digi_ocean_response.http_status, message))
         else:
             logging.debug(msgLog)
 
@@ -170,8 +171,6 @@ class DigiOceanCommand:
 
                 logging.info(msg_info)
         else:
-            message = digi_ocean_response.data.get('message', '')
-
             if self.request.http_method == 'GET':
                 msg_warm = kwargs.get('msg_warn', None)
                 if msg_warm:
