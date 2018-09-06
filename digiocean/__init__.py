@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
 
-from .endpoints.ssh_keys import SshKey
 from .endpoints.domains import DomainEndpoint
-from .endpoints.droplets import Droplet
+from .endpoints.ssh_keys import SshKeyEndpoint
+from .endpoints.droplets import DropletEndpoint
 
 
 class DigiOcean:
     def __init__(self, token):
         self.domains = DomainEndpoint(token=token, endpoint_url='domains/')
-        self.ssh_keys = SshKey(token=token, endpoint_url='account/keys/')
-        self.droplets = Droplet(token=token, endpoint_url='droplets/')
+        self.ssh_keys = SshKeyEndpoint(token=token, endpoint_url='account/keys/')
+        self.droplets = DropletEndpoint(token=token, endpoint_url='droplets/')
 
     # def check_params(params):
     #     '''

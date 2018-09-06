@@ -3,7 +3,7 @@ from __future__ import with_statement
 
 from digiocean import DigiOcean
 # Create your "tests/settings.py" file based on the "tests/base_settings.py".
-from settings import digi_ocean_TOKEN, DOMAIN_NAME, DOMAIN_IP_ADDRESS
+from settings import TOKEN, DOMAIN_NAME, DOMAIN_IP_ADDRESS
 import logging
 import unittest
 import random
@@ -14,7 +14,7 @@ class DomainTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.digiocean = DigiOcean(token=digi_ocean_TOKEN)
+        cls.digiocean = DigiOcean(token=TOKEN)
         cls.base_domain_name = 'www.digioceanpy-test-'
         cls.domain_name = '{}{}.com'.format(cls.base_domain_name, random.randint(1000, 9999))
 

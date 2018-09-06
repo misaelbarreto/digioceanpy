@@ -30,3 +30,13 @@ class Domain(DigiOceanModel):
         self.ttl = ttl
         self.zone_file = zone_file
         # super(Domain, self).__init__(*args, **kwargs)
+
+
+class SshKey(DigiOceanModel):
+    def __init__(self, id=None, fingerprint=None, public_key=None, name=None, *args, **kwargs):
+        self.id = id
+        self.fingerprint = fingerprint
+        self.public_key = public_key
+        self.name = name
+        # super(SshKey, self).__init__(*args, **kwargs)
+

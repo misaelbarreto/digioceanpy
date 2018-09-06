@@ -2,12 +2,14 @@
 from __future__ import with_statement
 
 import logging
-from digiocean.endpoints import DigiOceanEndPoint, DigiOceanCommand, DigiOceanResponse
+from digiocean.endpoints import DigiOceanEndPoint, DigiOceanResponse
+from digiocean.models import SshKey
 
 
-class SshKey(DigiOceanEndPoint):
+
+class SshKeyEndpoint(DigiOceanEndPoint):
     def __init__(self, *args, **kwargs):
-        super(SshKey, self).__init__(*args, **kwargs)
+        super(SshKeyEndpoint, self).__init__(*args, **kwargs)
 
     def list(self):
         '''
@@ -22,23 +24,45 @@ class SshKey(DigiOceanEndPoint):
         :return: a DigitalOceanResponse.
         '''
         logging.info('Listing all SSH Keys...')
-        # command = DigitalOceanCommand(token=self.token,
-        #                               url_complement='account/keys/')
         command = self.commander.create_command()
-        return self.execute(command=command,
-                                                msgInfo='SSH Keys found (total: {total}).',
-                                                msgWarn='No SSH Keys found.')
+        response = command.execute(parser=SshKey,
+                                   data_field_to_parser='ssh_keys',
+                                   msgInfo='SSH Keys found (total: {total}).',
+                                   msgWarn='No SSH Keys found.')
+
+        return response
 
     def get(self, id_or_fingerprint):
-        logging.info('Find the SSH Keys {0}...'.format(id_or_fingerprint))
-        # command = DigitalOceanCommand(token=self.token,
-        #                               url_complement='account/keys/' + str(id_or_fingerprint))
+        '''
+        To show information about a key.
+
+        Based in DigitalOcean API:
+        https://developers.digitalocean.com/documentation/v2/#retrieve-an-existing-key
+
+        Example:
+        curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" "https://api.digitalocean.com/v2/account/keys/512190"
+
+        :param id_or_fingerprint:
+        :return: a DigitalOceanResponse.
+        '''
+
+        logging.info(u'Find the SSH Keys {}...'.format(id_or_fingerprint))
         command = self.commander.create_command(endpoint_url_complement=str(id_or_fingerprint))
-        return self.execute(command=command,
-                                                msgInfo='SSH Key found.',
-                                                msgWarn='No SSH Key found.')
+        response = command.execute(parser=SshKey,
+                                   data_field_to_parser='ssh_keys',
+                                   msgInfo='SSH Key found.',
+                                   msgWarn='No SSH Key found.')
+
+        return response
+
 
     def extra_get_by_public_key(self, public_key):
+        '''
+        To show information about a key based on the public key. Obs: This method is exclusive of the DigiOcean python wrapper.
+
+        :param public_key
+        :return: a DigitalOceanResponse.
+        '''
         response = DigiOceanResponse(digi_ocean_command=None,
                                      http_status=None,
                                      is_ok=False,
@@ -47,7 +71,7 @@ class SshKey(DigiOceanEndPoint):
                                               'message': 'There is no ssh key with this signature.'})
 
         public_key_first_letters = public_key[:30]
-        logging.info('Find SSH Keys using the public key "{0}..."'.format(public_key_first_letters))
+        logging.info('Find SSH Keys using the public key "{}..."'.format(public_key_first_letters))
         all_ssh_keys = self.list()
         if all_ssh_keys.is_ok:
             for key in all_ssh_keys.data['ssh_keys']:
@@ -68,24 +92,46 @@ class SshKey(DigiOceanEndPoint):
         return response
 
     def create(self, name, public_key):
-        logging.info('Create the SSH Keys "{0}"...'.format(name))
+        '''
+        To add a new SSH public key to your DigitalOcean account.
+
+        Based in DigitalOcean API:
+        https://developers.digitalocean.com/documentation/v2/#create-a-new-key
+
+        Example:
+        curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" -d '{"name":"My SSH Public Key","public_key":"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAQQDDHr/jh2Jy4yALcK4JyWbVkPRaWmhck3IgCoeOO3z1e2dBowLh64QAM+Qb72pxekALga2oi4GvT+TlWNhzPH4V example"}' "https://api.digitalocean.com/v2/account/keys"
+
+        :param name:
+        :param public_key:
+        :return: a DigitalOceanResponse.
+        '''
+
+        logging.info('Create the SSH Keys "{}"...'.format(name))
         params = {'name': name, 'public_key': public_key}
-        # command = DigitalOceanCommand(token=self.token,
-        #                               url_complement='account/keys/',
-        #                               params=params,
-        #                               http_method='POST')
         command = self.commander.create_command(params=params,
                                                 http_method='POST')
-        return self.execute(command=command,
-                                                msgInfo='SSH Key created with success.',
-                                                msgError='Error on create ssh key.')
+        response = command.execute(parser=SshKey,
+                                   data_field_to_parser='ssh_key',
+                                   msgInfo='SSH Key created with success.',
+                                   msgError='Error on create ssh key.')
+        return response
 
     def delete(self, id_or_fingerprint):
-        # command = DigitalOceanCommand(token=self.token,
-        #                               url_complement='account/keys/' + str(id_or_fingerprint),
-        #                               http_method='DELETE')
-        command = self.commander.create_command(endpoint_url_complement=(id_or_fingerprint),
+        '''
+        To destroy a public SSH key that you have in your account.
+
+        Based in DigitalOcean API:
+        https://developers.digitalocean.com/documentation/v2/#destroy-a-key
+
+        Example:
+        curl -X DELETE -H "Content-Type: application/json" -H "Authorization: Bearer b7d03a6947b217efb6f3ec3bd3504582" "https://api.digitalocean.com/v2/account/keys/512190"
+
+
+        :param id_or_fingerprint:
+        :return: a DigitalOceanResponse.
+        '''
+        command = self.commander.create_command(endpoint_url_complement=id_or_fingerprint,
                                                 http_method='DELETE')
-        return self.execute(command=command,
-                                                msgInfo='SSH Key deleted with success.',
-                                                msgError='Error on delete ssh key.')
+        response = command.execute(msgInfo='SSH Key deleted with success.',
+                                   msgError='Error on delete ssh key.')
+        return response

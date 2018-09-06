@@ -5,9 +5,9 @@ import logging
 from digiocean.endpoints import DigiOceanEndPoint, DigiOceanResponse
 
 
-class Droplet(DigiOceanEndPoint):
+class DropletEndpoint(DigiOceanEndPoint):
     def __init__(self, *args, **kwargs):
-        super(Droplet, self).__init__(*args, **kwargs)
+        super(DropletEndpoint, self).__init__(*args, **kwargs)
 
     def list(self):
         '''

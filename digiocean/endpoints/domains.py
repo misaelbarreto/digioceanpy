@@ -45,7 +45,7 @@ class DomainEndpoint(DigiOceanEndPoint):
         '''
         logging.info('Retrieving the domain "{}"...'.format(name))
         command = self.commander.create_command(endpoint_url_complement=name)
-        return command.execute(command=command,
+        return command.execute(parser=Domain, data_field_to_parser='domain',
                                msg_info='Domain found.',
                                msg_warn='Domain not found.')
 
@@ -89,6 +89,5 @@ class DomainEndpoint(DigiOceanEndPoint):
         logging.info('Deleting the domain "{0}"...'.format(name))
         command = self.commander.create_command(endpoint_url_complement=str(name),
                                                 http_method='DELETE')
-        return command.execute(command=command,
-                               msg_info='Domain deleted with success.',
+        return command.execute(msg_info='Domain deleted with success.',
                                msg_error='Error on delete domain.')
